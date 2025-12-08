@@ -156,9 +156,9 @@ app.delete('/api/attachments/:id', async (req, res) => {
 // Start server
 // Only start server when running directly, not when testing
 if (require.main === module) {
-    app.listen(port, () => {
+    app.listen(PORT, () => {
         console.log(`API server running at
-    http://localhost:${port}`);
+    http://localhost:${PORT}`);
     });
 }
 
