@@ -17,6 +17,19 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(express.json());
 
+//Logging
+app.use((req, res, next) => {
+    let now = new Date(Date.now()).toISOString()
+    console.log(`${now}: ${req.method} ${req.url}`);
+    next()
+})
+
+//Validation
+app.use((req, res, next) => {
+    //Nothing needed for now, carry on
+    next()
+})
+
 
 //Create GET routes to retrieve all items and individual items by ID
 app.get('/api/users', async (req, res) => {
