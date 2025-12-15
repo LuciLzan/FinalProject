@@ -17,19 +17,19 @@ async function seedDatabase() {
         const users = await User.bulkCreate([
             {
                 name: "Alice",
-                email: "alice@example.com",
+                email: "member@example.com",
                 password: hashedPassword,
                 role: "member"
             },
             {
                 name: "Bob",
-                email: "bob@example.com",
+                email: "trusted@example.com",
                 password: hashedPassword,
                 role: "trusted"
             },
             {
                 name: "Charlie",
-                email: "charlie@example.com",
+                email: "admin@example.com",
                 password: hashedPassword,
                 role: "admin"
             }
