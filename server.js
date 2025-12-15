@@ -244,8 +244,18 @@ app.get('/api/messages', requireAuth,requiresAdmin, async (req, res) => {
     res.status(200).json(messages)
 });
 app.get('/api/messages/all', requireAuth, async (req, res) => {
-    let messages = await Message.findAll({where:{userId:req.user.id}})
-    res.status(200).json(messages)
+    const user = await User.findByPk(req.user.id, {
+        include: {
+            model: Message,
+            as: 'received_messages',
+            include: [
+                { model: User, as: 'from' },
+                { model: Attachment, as: 'attachments' }
+            ]
+        }
+    });
+
+    res.status(200).json(user.received_messages)
 });
 app.get('/api/messages/:id',requireAuth, async (req, res) => {
     let message = await Message.findByPk(req.params.id);
@@ -282,6 +292,11 @@ const messageValidation = [
     body('body')
         .exists()
         .withMessage("Must specify a body"),
+    body('recipients')
+        .exists()
+        .isArray()
+        .withMessage("Must specify recipients as array"),
+
 
 ];
 
@@ -289,14 +304,25 @@ app.post('/api/messages',requireAuth,requiresTrusted,messageValidation,handleVal
     let message = {
         subject: req.body.subject,
         body: req.body.body,
-
+        userId: req.user.id
     }
 
-    Message.create(message).then((result) => {
-        res.status(201).json(result)
-    }).catch(err => {
-        res.status(500).send({message:err.message})
-    })
+    let createdMessage = await Message.create(message)
+
+    const recipients = await User.findAll({
+        where: { id: req.body.recipients }
+    });
+
+    if (recipients.length === 0) {
+        return res.status(400).json({error:"Needs at least 1 recipient"})
+    }
+
+    await createdMessage.addRecipients(recipients);
+
+    res.status(201).json(createdMessage)
+
+
+
 });
 
 const attachmentValidation = [
@@ -431,7 +457,7 @@ app.delete('/api/messages/:id',requireAuth,requiresTrusted, async (req, res) => 
     if(!message) {
         return res.status(404).json({message:`Unknown ID: ${req.params.id}`})
     }
-    if(user.role === "admin" || (user.id === message.userId)) {
+    if(user.role === "admin" || (user.id === message.userId)|| message.recipients.some(r => r.id === user.id)) {
         message.destroy().then(()=> {
             res.status(200).json({message:`Successfully deleted: ${req.params.id}`})
         }).catch(err => {

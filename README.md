@@ -11,7 +11,7 @@ A RESTful API for sending messages across an organization
 Once you are in, log into one of the pre-made accounts to see how the system works!
 Once you are familiar, feel free to make your own accounts to distribute to your friends and send messages!
 
-The API should be good to go! Try to send username and password at http://localhost:3000/login to get a token,
+The API should be good to go! Try to send username and password (in seed.js) at http://localhost:3000/login to get a token,
 then try out our various endpoints detailed below
 ## Endpoints
 Information surrounding the use of this api can be found here:

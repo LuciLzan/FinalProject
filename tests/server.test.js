@@ -61,6 +61,12 @@ describe('Registration', () => {
         let response = await request(app)
             .post('/api/register')
             .send(testUserCredentials);
+        expect(response.status).toBe(401)
+    })
+    test("POST /api/register", async () => {
+        let response = await request(app)
+            .post('/api/register')
+            .send();
         expect(response.status).toBe(400)
     })
 })
@@ -199,7 +205,7 @@ describe('GET /api/messages/:id',()=> {
     })
     test("GET /api/messages/:id with trusted perms ", async () => {
         let response = await request(app)
-            .get('/api/messages/2')
+            .get('/api/messages/3')
             .set("Authorization",`Bearer ${trustedAuthToken}`)
             .send({});
         expect(response.status).toBe(200)
@@ -288,6 +294,7 @@ let testMessageRequest = {
     body: "Test"
 }
 describe('POST /api/messages (valid data)',()=> {
+    testMessageRequest.recipients = [1,2]
     test("POST /api/messages with admin perms ", async () => {
         let response = await request(app)
             .post('/api/messages')
@@ -297,6 +304,7 @@ describe('POST /api/messages (valid data)',()=> {
         expect(response.status).toBe(201)
         testMessages.push(response.body)
     })
+    testMessageRequest.recipients = [1,3]
     test("POST /api/messages with trusted perms ", async () => {
         let response = await request(app)
             .post('/api/messages')
@@ -363,16 +371,18 @@ let testAttachmentRequest = {
 
 describe('POST /api/attachments (Valid data)',()=> {
     test("POST /api/attachments with admin perms ", async () => {
-        testMessageRequest.message = testMessages[0].id
+        testAttachmentRequest.message = testMessages[0].id
+        console.log(testMessageRequest)
         let response = await request(app)
             .post('/api/attachments')
             .set("Authorization",`Bearer ${adminAuthToken}`)
             .send(testAttachmentRequest);
         expect(response.status).toBe(201)
+        testAttachments.push(response.body)
 
     })
     test("POST /api/attachments with trusted perms ", async () => {
-        testMessageRequest.message = testMessages[1].id
+        testAttachmentRequest.message = testMessages[1].id
         let response = await request(app)
             .post('/api/attachments')
             .set("Authorization",`Bearer ${trustedAuthToken}`)
@@ -437,7 +447,7 @@ describe('PUT /api/users/:id',()=> {
     })
     test("PUT /api/users/:id with trusted perms ", async () => {
         let response = await request(app)
-            .put(`/api/users/3`)
+            .put(`/api/users/1`)
             .set("Authorization",`Bearer ${trustedAuthToken}`)
             .send({});
         expect(response.status).toBe(403)

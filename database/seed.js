@@ -40,19 +40,26 @@ async function seedDatabase() {
         const msg1 = await Message.create({
             subject: "Welcome to the platform",
             body: "Excited to have you all here!",
-            userId: users[0].id // Alice
+            userId: users[1].id
         });
 
         const msg2 = await Message.create({
             subject: "Maintenance Notice",
             body: "Server will be down tonight at 1 AM.",
-            userId: users[2].id // Charlie
+            userId: users[2].id
+        });
+
+        const msg3 = await Message.create({
+            subject: "Message",
+            body: "I am here too :)",
+            userId: users[1].id
         });
 
 
         // --- MESSAGE RECIPIENTS (M2M) ---
         await msg1.addRecipients([users[1].id, users[2].id]); // Bob + Charlie
         await msg2.addRecipients([users[0].id]);              // Alice
+        await msg3.addRecipients([users[2].id], users[3]);
 
 
         // --- ATTACHMENTS (using real small base64 images) ---
